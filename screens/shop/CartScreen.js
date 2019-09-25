@@ -8,9 +8,9 @@ import CartItem from "../../components/shop/CartItem";
 
 const CartScreen = props => {
   const cartTotalAmount = useSelector(state => state.cart.totalAmount);
+
   const cartItems = useSelector(state => {
     let itemsArray = [];
-    console.log(state.cart.items);
     for (let key in state.cart.items) {
       itemsArray.push({
         productId: key,
@@ -20,6 +20,7 @@ const CartScreen = props => {
         sum: state.cart.items[key].sum
       });
     }
+
     return itemsArray.sort((a, b) => (a.productId > b.productId ? 1 : -1));
   });
 

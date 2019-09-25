@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
   },
   itemData: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center"
   },
   quantity: {
