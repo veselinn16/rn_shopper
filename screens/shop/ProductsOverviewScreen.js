@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, Platform } from "react-native";
+import { FlatList, Button, Platform } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import * as cartActions from "../../store/actions/cart";
 
@@ -7,9 +7,17 @@ import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
 import ProductItem from "../../components/shop/ProductItem";
 import HeaderButton from "../../components/UI/HeaderButton";
+import Colors from "../../constants/Colors";
 
 const ProductsOverviewScreen = ({ navigation }) => {
   const products = useSelector(state => state.products.availableProducts);
+
+  const selectItem = (id, title) => {
+    navigation.navigate("ProductDetails", {
+      productId: id,
+      productTitle: title
+    });
+  };
 
   const dispatch = useDispatch();
   return (
@@ -21,14 +29,19 @@ const ProductsOverviewScreen = ({ navigation }) => {
           image={item.imageUrl}
           title={item.title}
           price={item.price}
-          onViewDetails={() => {
-            navigation.navigate("ProductDetails", {
-              productId: item.id,
-              productTitle: item.title
-            });
-          }}
-          onAddToCart={() => dispatch(cartActions.addToCart(item))}
-        />
+          onSelect={() => selectItem(item.id, item.title)}
+        >
+          <Button
+            color={Colors.primary}
+            title="View Details"
+            onPress={() => selectItem(item.id, item.title)}
+          />
+          <Button
+            color={Colors.primary}
+            title="Add to Cart"
+            onPress={() => dispatch(cartActions.addToCart(item))}
+          />
+        </ProductItem>
       )}
     />
   );
@@ -42,6 +55,15 @@ ProductsOverviewScreen.navigationOptions = ({ navigation }) => ({
         title="Cart"
         iconName={Platform.OS === "android" ? "md-cart" : "ios-cart"}
         onPress={() => navigation.navigate("Cart")}
+      />
+    </HeaderButtons>
+  ),
+  headerLeft: (
+    <HeaderButtons HeaderButtonComponent={HeaderButton}>
+      <Item
+        title="Menu"
+        iconName={Platform.OS === "android" ? "md-menu" : "ios-menu"}
+        onPress={() => navigation.toggleDrawer()}
       />
     </HeaderButtons>
   )
