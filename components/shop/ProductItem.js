@@ -16,8 +16,8 @@ const ProductItem = ({ image, title, price, onSelect, children }) => {
     Platform.OS === "android" ? TouchableNativeFeedback : TouchableOpacity;
 
   return (
-    <Card style={styles.product}>
-      <View style={styles.touchable}>
+    <View style={styles.touchable}>
+      <Card style={styles.product}>
         <Touchable onPress={onSelect} useForeground>
           <View>
             <View style={styles.imageContainer}>
@@ -30,23 +30,23 @@ const ProductItem = ({ image, title, price, onSelect, children }) => {
             <View style={styles.actions}>{children}</View>
           </View>
         </Touchable>
-      </View>
-    </Card>
+      </Card>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   product: {
-    height: 300,
-    margin: 20,
-    overflow: "hidden"
+    // overflow: "hidden"
   },
   touchable: {
-    borderRadius: 10,
-    overflow: "hidden"
+    margin: 20,
+    height: 300,
+    borderRadius: 10
+    // overflow: "hidden"
   },
   imageContainer: {
-    overflow: "hidden",
+    // overflow: "hidden",
     width: "100%",
     height: "60%",
     borderTopLeftRadius: 10,
