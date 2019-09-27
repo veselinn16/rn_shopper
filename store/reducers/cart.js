@@ -52,11 +52,9 @@ export default (state = initialState, action) => {
           [action.payload]: updatedCartItem
         };
       } else {
-        const updatedCartItems = { ...state.items };
+        updatedCartItems = { ...state.items };
         delete updatedCartItems[action.payload];
       }
-
-      // console.log(updatedCartItems);
 
       return {
         ...state,
@@ -71,10 +69,11 @@ export default (state = initialState, action) => {
       }
       const updatedItems = { ...state.items };
       const itemTotal = state.items[action.payload].sum;
-      delete updatedCartItems(action.payload);
+      delete updatedItems[action.payload];
       return {
         ...state,
-        items: state.items
+        items: updatedItems,
+        totalAmount: state.totalAmount - itemTotal
       };
     default:
       return state;

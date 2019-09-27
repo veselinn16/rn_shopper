@@ -3,27 +3,20 @@ import {
   View,
   Text,
   Image,
-  Button,
   TouchableOpacity,
   TouchableNativeFeedback,
   Platform,
   StyleSheet
 } from "react-native";
-import Colors from "../../constants/Colors";
 
-const ProductItem = ({
-  image,
-  title,
-  price,
-  onSelect,
-  onAddToCart,
-  children
-}) => {
+import Card from "../UI/Card";
+
+const ProductItem = ({ image, title, price, onSelect, children }) => {
   const Touchable =
     Platform.OS === "android" ? TouchableNativeFeedback : TouchableOpacity;
 
   return (
-    <View style={styles.product}>
+    <Card style={styles.product}>
       <View style={styles.touchable}>
         <Touchable onPress={onSelect} useForeground>
           <View>
@@ -38,19 +31,12 @@ const ProductItem = ({
           </View>
         </Touchable>
       </View>
-    </View>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
   product: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.26,
-    shadowRadius: 8,
-    elevation: 5,
-    borderRadius: 10,
-    backgroundColor: "#fff",
     height: 300,
     margin: 20,
     overflow: "hidden"
@@ -72,7 +58,7 @@ const styles = StyleSheet.create({
   },
   details: {
     alignItems: "center",
-    height: "15%",
+    height: "17%",
     padding: 10
   },
   title: {
@@ -86,7 +72,7 @@ const styles = StyleSheet.create({
     color: "#888"
   },
   actions: {
-    height: "25%",
+    height: "23%",
     paddingHorizontal: 20,
     flexDirection: "row",
     justifyContent: "space-between",
