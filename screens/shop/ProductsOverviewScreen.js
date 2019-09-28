@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FlatList, Button, Platform } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import * as cartActions from "../../store/actions/cart";
+import * as productsActions from "../../store/actions/products";
 
 import { HeaderButtons, Item } from "react-navigation-header-buttons";
 
@@ -18,8 +19,12 @@ const ProductsOverviewScreen = ({ navigation }) => {
       productTitle: title
     });
   };
-
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(productsActions.fetchProducts());
+  }, [dispatch]);
+
   return (
     <FlatList
       data={products}
