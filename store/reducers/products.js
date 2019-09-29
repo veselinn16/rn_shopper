@@ -18,9 +18,10 @@ export default (state = initialState, action) => {
     case SET_PRODUCTS:
       return {
         ...state,
-        userProducts: action.payload.filter(prod => prod.id === "u1"),
+        userProducts: action.payload.filter(prod => prod.ownerId === "u1"),
         availableProducts: action.payload
       };
+
     case CREATE_PRODUCT:
       const { title, imageUrl, description, price, id } = action.payload;
       const newProduct = new Product(

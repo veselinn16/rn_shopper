@@ -9,10 +9,13 @@ export const fetchProducts = () => {
   return async dispatch => {
     // async action creator
     try {
-      console.log("fetching data");
       const res = await fetch(
         "https://rn-shopper.firebaseio.com/products.json"
       );
+
+      if (!res.ok) {
+        throw new Error("Something went wrong!");
+      }
 
       // returns ID created by Firebase
       const resData = await res.json();
@@ -36,15 +39,35 @@ export const fetchProducts = () => {
         payload: productsArr
       });
     } catch (err) {
-      console.log(err);
+      // send to custom analytics server maybe
+      throw err;
     }
   };
 };
 
-export const deleteProduct = prodId => ({
-  type: DELETE_PRODUCT,
-  payload: prodId
-});
+export const deleteProduct = prodId => {
+  return async dispatch => {
+    try {
+      const res = await fetch(
+        `https://rn-shopper.firebaseio.com/products/${prodId}.json`,
+        {
+          method: "DELETE"
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Something went wrong!");
+      }
+
+      dispatch({
+        type: DELETE_PRODUCT,
+        payload: prodId
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};
 
 export const createProduct = (title, description, imageUrl, price) => {
   return async dispatch => {
@@ -84,12 +107,39 @@ export const createProduct = (title, description, imageUrl, price) => {
   };
 };
 
-export const updateProduct = (id, title, description, imageUrl) => ({
-  type: UPDATE_PRODUCT,
-  pid: id,
-  payload: {
-    title,
-    description,
-    imageUrl
-  }
-});
+export const updateProduct = (id, title, description, imageUrl) => {
+  return async dispatch => {
+    try {
+      const res = await fetch(
+        `https://rn-shopper.firebaseio.com/products/${id}.json`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            title,
+            description,
+            imageUrl
+          })
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Something went wrong!");
+      }
+
+      dispatch({
+        type: UPDATE_PRODUCT,
+        pid: id,
+        payload: {
+          title,
+          description,
+          imageUrl
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+};

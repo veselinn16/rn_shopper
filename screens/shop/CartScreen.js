@@ -1,5 +1,12 @@
-import React from "react";
-import { View, Text, FlatList, Button, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Button,
+  ActivityIndicator,
+  StyleSheet
+} from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import Colors from "../../constants/Colors";
 
@@ -9,6 +16,8 @@ import CartItem from "../../components/shop/CartItem";
 import Card from "../../components/UI/Card";
 
 const CartScreen = props => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const cartTotalAmount = useSelector(state => state.cart.totalAmount);
 
   const cartItems = useSelector(state => {
@@ -28,6 +37,12 @@ const CartScreen = props => {
 
   const dispatch = useDispatch();
 
+  const sendOrderHandler = async () => {
+    setIsLoading(true);
+    await dispatch(cartActions.removeFromCart(item.productId));
+    setIsLoading(false);
+  };
+
   return (
     <View style={styles.screen}>
       <Card style={styles.summary}>
@@ -37,6 +52,7 @@ const CartScreen = props => {
             ${Math.round(cartTotalAmount.toFixed(2) * 100) / 100}
           </Text>
         </Text>
+        {isLoading && <ActivityIndicator size="small" color={Colors.primary} />}
         <Button
           color={Colors.secondary}
           title="Order Now"
@@ -55,9 +71,7 @@ const CartScreen = props => {
             title={item.productTitle}
             amount={item.sum}
             deletable
-            onRemove={() => {
-              dispatch(cartActions.removeFromCart(item.productId));
-            }}
+            onRemove={sendOrderHandler}
           />
         )}
       />
