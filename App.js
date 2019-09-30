@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import store from "./store";
-import ShopNavigator from "./navigation/ShopNavigator";
+import NavigationContainer from "./navigation/NavigationContainer";
 import { Provider } from "react-redux";
 import { AppLoading } from "expo";
 import * as Font from "expo-font";
@@ -25,7 +25,7 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <ShopNavigator />
+      <NavigationContainer />
     </Provider>
   );
 }

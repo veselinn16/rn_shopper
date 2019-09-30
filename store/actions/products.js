@@ -6,9 +6,10 @@ export const UPDATE_PRODUCT = "UPDATE_PRODUCT";
 export const SET_PRODUCTS = "SET_PRODUCTS";
 
 export const fetchProducts = () => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     // async action creator
     try {
+      const userId = getState().auth.userId;
       const res = await fetch(
         "https://rn-shopper.firebaseio.com/products.json"
       );
@@ -25,7 +26,7 @@ export const fetchProducts = () => {
         productsArr.push(
           new Product(
             key,
-            "u1",
+            resData[key].ownerId,
             resData[key].title,
             resData[key].imageUrl,
             resData[key].description,
@@ -34,9 +35,12 @@ export const fetchProducts = () => {
         );
       }
 
+      const userProducts = productsArr.filter(prod => prod.ownerId === userId);
+
       dispatch({
         type: SET_PRODUCTS,
-        payload: productsArr
+        payload: productsArr,
+        userProducts
       });
     } catch (err) {
       // send to custom analytics server maybe
@@ -48,8 +52,10 @@ export const fetchProducts = () => {
 export const deleteProduct = prodId => {
   return async dispatch => {
     try {
+      const token = getState().auth.token;
+
       const res = await fetch(
-        `https://rn-shopper.firebaseio.com/products/${prodId}.json`,
+        `https://rn-shopper.firebaseio.com/products/${prodId}.json?auth=${token}`,
         {
           method: "DELETE"
         }
@@ -70,11 +76,14 @@ export const deleteProduct = prodId => {
 };
 
 export const createProduct = (title, description, imageUrl, price) => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     // async action creator
     try {
+      const token = getState().auth.token;
+      const userId = getState().auth.userId;
+
       const res = await fetch(
-        "https://rn-shopper.firebaseio.com/products.json",
+        `https://rn-shopper.firebaseio.com/products.json?auth=${token}`,
         {
           method: "POST",
           headers: {
@@ -84,7 +93,8 @@ export const createProduct = (title, description, imageUrl, price) => {
             title,
             description,
             imageUrl,
-            price
+            price,
+            ownerId: userId
           })
         }
       );
@@ -98,7 +108,8 @@ export const createProduct = (title, description, imageUrl, price) => {
           title,
           description,
           imageUrl,
-          price
+          price,
+          ownerId: userId
         }
       });
     } catch (err) {
@@ -108,10 +119,11 @@ export const createProduct = (title, description, imageUrl, price) => {
 };
 
 export const updateProduct = (id, title, description, imageUrl) => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     try {
+      const token = getState().auth.token;
       const res = await fetch(
-        `https://rn-shopper.firebaseio.com/products/${id}.json`,
+        `https://rn-shopper.firebaseio.com/products/${id}.json?auth=${token}`,
         {
           method: "PATCH",
           headers: {

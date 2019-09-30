@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState, useEffect, useReducer, useCallback } from "react";
 import {
   ScrollView,
   View,
   Button,
   KeyboardAvoidingView,
+  ActivityIndicator,
+  Alert,
   StyleSheet
 } from "react-native";
 
@@ -13,7 +15,98 @@ import Input from "../../components/UI/Input";
 import Card from "../../components/UI/Card";
 import Colors from "../../constants/Colors";
 
+import { useDispatch } from "react-redux";
+import * as authActions from "../../store/actions/auth";
+const FORM_UPDATE = "FORM_UPDATE";
+
+const formReducer = (state, action) => {
+  if (action.type === FORM_UPDATE) {
+    const updatedValues = {
+      ...state.inputValues,
+      [action.input]: action.value
+    };
+
+    const updatedValidities = {
+      ...state.inputValidities,
+      [action.input]: action.isValid
+    };
+
+    let updatedFormIsValid = true;
+
+    for (const key in updatedValidities) {
+      updatedFormIsValid = updatedFormIsValid && updatedValidities[key];
+    }
+
+    return {
+      formIsValid: updatedFormIsValid,
+      inputValidities: updatedValidities,
+      inputValues: updatedValues
+    };
+  }
+
+  return state;
+};
+
 const AuthScreen = props => {
+  const [error, setError] = useState();
+  const [isSignup, setIsSignup] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formState, dispatchFormState] = useReducer(formReducer, {
+    inputValues: {
+      email: "",
+      password: ""
+    },
+    inputValidities: {
+      email: false,
+      password: false
+    },
+    formIsValid: false
+  });
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert("An error occurred!", error, [{ text: "Okay" }]);
+    }
+  }, [error]);
+
+  const dispatch = useDispatch();
+
+  const authHandler = async () => {
+    let action;
+    if (isSignup) {
+      action = authActions.signup(
+        formState.inputValues.email,
+        formState.inputValues.password
+      );
+    } else {
+      action = authActions.login(
+        formState.inputValues.email,
+        formState.inputValues.password
+      );
+    }
+    setError(null);
+    setIsLoading(true);
+    try {
+      await dispatch(action);
+      props.navigation.navigate("Shop");
+    } catch (err) {
+      setError(err.message);
+      setIsLoading(false);
+    }
+  };
+
+  const inputChangeHandler = useCallback(
+    (input, inputValue, inputValidity) => {
+      dispatchFormState({
+        type: FORM_UPDATE,
+        value: inputValue,
+        isValid: inputValidity,
+        input
+      });
+    },
+    [dispatchFormState]
+  );
+
   return (
     <KeyboardAvoidingView
       behavior="padding"
@@ -29,8 +122,8 @@ const AuthScreen = props => {
               keyboardType="email-address"
               required
               autoCapitalize="none"
-              errorMessage="Please enter a valid email address."
-              onValueChange={() => {}}
+              errorText="Please enter a valid email address."
+              onInputChange={inputChangeHandler}
               initialValue=""
             />
             <Input
@@ -41,21 +134,35 @@ const AuthScreen = props => {
               required
               minLength={5}
               autoCapitalize="none"
-              errorMessage="Please enter a valid password."
-              onValueChange={() => {}}
+              errorText="Please enter a valid password."
+              onInputChange={inputChangeHandler}
               initialValue=""
             />
           </ScrollView>
-          <View style={styles.btnContainer}>
-            <Button title="Login" color={Colors.primary} onPress={() => {}} />
-          </View>
-          <View style={styles.btnContainer}>
-            <Button
-              title="Switch to Sign Up"
-              color={Colors.secondary}
-              onPress={() => {}}
-            />
-          </View>
+          {isLoading ? (
+            <View style={styles.spinnerContainer}>
+              <ActivityIndicator size="large" color={Colors.primary} />
+            </View>
+          ) : (
+            <React.Fragment>
+              <View style={styles.btnContainer}>
+                <Button
+                  title={isSignup ? "Sign Up" : "Login"}
+                  color={Colors.primary}
+                  onPress={authHandler}
+                />
+              </View>
+              <View style={styles.btnContainer}>
+                <Button
+                  title={`Switch to ${isSignup ? "Login" : "Sign Up"}`}
+                  color={Colors.secondary}
+                  onPress={() => {
+                    setIsSignup(prevState => !prevState);
+                  }}
+                />
+              </View>
+            </React.Fragment>
+          )}
         </Card>
       </LinearGradient>
     </KeyboardAvoidingView>
@@ -72,6 +179,12 @@ const styles = StyleSheet.create({
   },
   gradient: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  spinnerContainer: {
+    marginTop: 15,
+    height: 100,
     justifyContent: "center",
     alignItems: "center"
   },

@@ -3,9 +3,13 @@ export const SET_ORDERS = "SET_ORDERS";
 
 import Order from "../../models/order";
 
-export const fetchOrders = () => async dispatch => {
+export const fetchOrders = () => async (dispatch, getState) => {
   try {
-    const res = await fetch("https://rn-shopper.firebaseio.com/orders/u1.json");
+    const userId = getState().auth.userId;
+
+    const res = await fetch(
+      `https://rn-shopper.firebaseio.com/orders/${userId}.json`
+    );
 
     if (!res.ok) {
       throw new Error("Something went wrong!");
@@ -35,12 +39,18 @@ export const fetchOrders = () => async dispatch => {
   }
 };
 
-export const addOrder = (cartItems, totalAmount) => async dispatch => {
+export const addOrder = (cartItems, totalAmount) => async (
+  dispatch,
+  getState
+) => {
   try {
+    const token = getState().auth.token;
+    const userId = getState().auth.userId;
+
     const date = new Date();
 
     const res = await fetch(
-      "https://rn-shopper.firebaseio.com/orders/u1.json",
+      `https://rn-shopper.firebaseio.com/orders/${userId}.json?auth=${token}`,
       {
         method: "POST",
         headers: {
